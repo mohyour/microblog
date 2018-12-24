@@ -1,27 +1,17 @@
 from app import app
-from flask import render_template, flash, redirect, url_for
+from flask import render_template, flash, redirect, url_for, request
 from app.forms import LoginForm
-from flask_login import current_user, login_user, logout_user
-from app.models import User
+from flask_login import current_user, login_user, logout_user, login_required
+from app.models import User, Post
+from werkzeug.urls import url_parse
 
 
 @app.route('/')
 @app.route('/index')
+@login_required
 def index():
-    user = {
-        'username': 'Moyosore'
-    }
-    posts = [
-        {
-            'author': {'username': 'John'},
-            'body': 'Beautiful day in Portland!'
-        },
-        {
-            'author': {'username': 'Susan'},
-            'body': 'The Avengers movie was so cool!'
-        }
-    ]
-
+    user = User.query.filter_by(username=current_user.username).first()
+    posts = Post.query.filter_by(user_id=user.id)
     return render_template('index.html', user=user, posts=posts)
 
 
@@ -36,7 +26,10 @@ def login():
             flash('Invalid username or password')
             return redirect(url_for('login'))
         login_user(user, remember=form.remember_me.data)
-        return redirect(url_for('index'))
+        next_page = request.args.get('next')
+        if not next_page or url_parse(next_page).netloc != '':
+            next_page = url_for('index')
+        return redirect(next_page)
     return (render_template('login.html', title="Sign In", form=form))
 
 
