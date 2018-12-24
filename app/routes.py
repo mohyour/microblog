@@ -1,6 +1,6 @@
-from app import app
+from app import app, db
 from flask import render_template, flash, redirect, url_for, request
-from app.forms import LoginForm
+from app.forms import LoginForm, SignUpForm
 from flask_login import current_user, login_user, logout_user, login_required
 from app.models import User, Post
 from werkzeug.urls import url_parse
@@ -37,3 +37,19 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('index'))
+
+
+@app.route('/signup', methods=['GET', 'POST'])
+def signup():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    form = SignUpForm()
+    if form.validate_on_submit():
+        user = User(username=form.username.data, email=form.email.data)
+        user.set_password(form.password.data)
+        db.session.add(user)
+        db.session.commit()
+        user = User.query.filter_by(username=form.username.data).first()
+        login_user(user)
+        return redirect(url_for('index'))
+    return render_template('signup.html', title='Signup', form=form)
