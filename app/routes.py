@@ -53,3 +53,11 @@ def signup():
         login_user(user)
         return redirect(url_for('index'))
     return render_template('signup.html', title='Signup', form=form)
+
+
+@app.route('/username/<username>')
+@login_required
+def user(username):
+    user = User.query.filter_by(username=username).first_or_404()
+    posts = user.posts
+    return render_template('user.html', user=user, posts=posts)
