@@ -12,11 +12,15 @@ MAIL_USE_TLS=1
 MAIL_USERNAME=<your-gmail-username>
 MAIL_PASSWORD=<your-gmail-password>
 ```
-Database Migration
+
+Start app: `flask run`
+
+#### Database Migration
 
 `flask db init` - creates database migration folder
 `flask db migrate` - Generates automatic migration script
 `flask db upgrade` - Apply database migration
+
 
 Test error email locally - debug set to false:
 Run: `python -m smtpd -n -c DebuggingServer localhost:8025`
